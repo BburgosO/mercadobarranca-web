@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mercado Barranca — Pescados y mariscos a precio de mayorista</title>
+<meta name="description" content="Pescados y mariscos de calidad HORECA al mismo precio que paga un restaurante. Despacho refrigerado en la Región Metropolitana. Envío gratis sobre $35.000.">
+<meta name="theme-color" content="#0e1a24">
+
+<!-- Preview al compartir el link (WhatsApp, Instagram, Facebook).
+     PENDIENTE: subir og-image.jpg (1200x630) a la raíz. -->
+<link rel="canonical" href="https://mercadobarranca.cl/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mercado Barranca">
+<meta property="og:locale" content="es_CL">
+<meta property="og:title" content="Mercado Barranca — Pescados y mariscos a precio de mayorista">
+<meta property="og:description" content="Compra el mismo pescado que llega a los restaurantes, al mismo precio. Despacho refrigerado en la RM.">
+<meta property="og:url" content="https://mercadobarranca.cl/">
+<meta property="og:image" content="https://mercadobarranca.cl/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mercado Barranca — Pescados y mariscos a precio de mayorista">
+<meta name="twitter:description" content="Compra el mismo pescado que llega a los restaurantes, al mismo precio. Despacho refrigerado en la RM.">
+<meta name="twitter:image" content="https://mercadobarranca.cl/assets/og-image.jpg">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230e1a24'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' font-weight='600' fill='%23e19140' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Store","name":"Mercado Barranca",
+ "description":"Pescados y mariscos de calidad HORECA a precio de mayorista, con despacho refrigerado.",
+ "url":"https://mercadobarranca.cl/","image":"https://mercadobarranca.cl/assets/og-image.jpg","priceRange":"$$",
+ "areaServed":{"@type":"AdministrativeArea","name":"Región Metropolitana, Chile"},
+ "address":{"@type":"PostalAddress","addressRegion":"Región Metropolitana","addressCountry":"CL"}}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<!-- ANNOUNCEMENT -->
+<div class="promo"><div class="wrap">
+  <span id="ann1"><b>Lo que compran los restaurantes,</b> tú lo compras igual de barato</span>
+  <span class="sep hideM">◆</span>
+  <span class="hideM" id="ann2">Despacho refrigerado en la Región Metropolitana</span>
+</div></div>
+
+<!-- HEADER -->
+<header>
+  <div class="wrap head">
+    <a class="brand" href="#inicio" aria-label="Mercado Barranca">
+      <img src="/assets/foto-07.png" alt="Mercado Barranca">
+      <span class="wm"><span class="k">MERCADO</span><span class="n">BARRANCA</span></span>
+    </a>
+    <nav class="main">
+      <a href="#inicio" class="active">Inicio</a>
+      <a href="#productos">Productos</a>
+    </nav>
+    <div class="head-actions">
+      <button class="iconbtn" id="searchBtn" aria-label="Buscar" aria-expanded="false" aria-controls="searchbar"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+      <a class="wa-btn wa-link" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.4A10 10 0 1 0 12 2Z"/></svg><span class="lbl">Pedir</span></a>
+      <button class="iconbtn" id="cartBtn" aria-label="Carrito"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h2l2.4 12.4a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L21 7H6"/><circle cx="9" cy="20" r="1.2"/><circle cx="18" cy="20" r="1.2"/></svg><span class="cnt" id="cnt">0</span></button>
+      <button class="iconbtn hamb" id="hamb" aria-label="Menú" aria-expanded="false" aria-controls="mnav"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    </div>
+  </div>
+  <div class="searchbar" id="searchbar">
+    <div class="wrap">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--orange);flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="searchInput" type="search" placeholder="Buscar salmón, camarones, ostiones…" aria-label="Buscar productos" autocomplete="off">
+      <span class="hint" id="searchCount"></span>
+      <button class="x" id="searchClose" aria-label="Cerrar buscador">×</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-bg"><img src="/assets/foto-08.jpg" alt="" id="heroBg"></div>
+  <div class="wrap" id="heroWrap">
+    <div class="slide on">
+      <span class="kicker">Mercado Barranca</span>
+      <h1>Del mayorista <em>a tu mesa</em>, al mismo precio</h1>
+      <p>Pescados y mariscos de calidad HORECA, el mismo que llega a los restaurantes, fraccionado para tu casa.</p>
+    </div>
+    <div class="slide">
+      <span class="kicker">Calidad HORECA</span>
+      <h1>El salmón de <em>las mejores cocinas</em></h1>
+      <p>Calibres y cortes profesionales, seleccionados como los pide la industria y porcionados para tu mesa.</p>
+    </div>
+    <div class="slide">
+      <span class="kicker">Precio transparente</span>
+      <h1>Precio por kilo <em>siempre a la vista</em></h1>
+      <p>Sin vitrina, sin intermediarios y sin cotizaciones. Compras como compra un restaurante.</p>
+    </div>
+  </div>
+  <div class="dots"><div class="wrap" id="heroDots">
+    <button class="on" data-s="0" aria-label="Slide 1"></button>
+    <button data-s="1" aria-label="Slide 2"></button>
+    <button data-s="2" aria-label="Slide 3"></button>
+  </div></div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Compra por categoría</span>
+      <h2 class="serif">Del mar, directo a tu cocina</h2>
+      <p>Cuatro familias, un mismo estándar: producto profesional a precio de mayorista.</p>
+    </div>
+    <div class="cats">
+      <a class="cat big" href="#productos"><img loading="lazy" decoding="async" src="/assets/foto-04.jpg" alt="Salmón">
+        <div class="lbl"><div class="k">Atlántico chileno</div><h3 class="serif">Salmón</h3><span class="go">Ver todo →</span></div></a>
+      <a class="cat" href="#productos"><img loading="lazy" decoding="async" src="/assets/foto-03.jpg" alt="Camarones">
+        <div class="lbl"><div class="k">Ecuatoriano</div><h3 class="serif">Camarones</h3></div></a>
+      <a class="cat" href="#productos"><img loading="lazy" decoding="async" src="/assets/foto-06.jpg" alt="Pescados">
+        <div class="lbl"><div class="k">Blancos y de mar</div><h3 class="serif">Pescados</h3></div></a>
+      <a class="cat" href="#productos"><img loading="lazy" decoding="async" src="/assets/foto-02.jpg" alt="Mariscos">
+        <div class="lbl"><div class="k">Frescos</div><h3 class="serif">Mariscos</h3></div></a>
+      <a class="cat" href="#productos"><img loading="lazy" decoding="async" src="/assets/foto-05.jpg" alt="Para picar">
+        <div class="lbl"><div class="k">Listos para servir</div><h3 class="serif">Para picar</h3></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="sec" id="productos" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Selección de la casa</span>
+      <h2 class="serif">Nuestros productos</h2>
+      <p>Precios referenciales con el kilo siempre a la vista. Esto es un borrador inicial del catálogo.</p>
+    </div>
+    <div class="prodgrid" id="grid"></div>
+    <div class="prod-foot"><a class="btn btn-ghost wa-ask" href="#" data-ask="Hola, ¿me pueden enviar el catálogo completo con precios?">Ver catálogo completo</a></div>
+  </div>
+</section>
+
+<!-- PROMO BAND -->
+<section class="promoband">
+  <div class="promoband-bg"><img loading="lazy" decoding="async" src="/assets/foto-02.jpg" alt=""></div>
+  <div class="wrap"><div class="inner">
+    <span class="kicker">Pedidos por WhatsApp</span>
+    <h2 class="serif" style="margin-top:14px">Arma tu pedido y te lo llevamos frío</h2>
+    <!-- el monto lo pinta paintConfig() desde FREE_SHIP para que no se desincronice del carrito -->
+    <p>Escríbenos, elige tus cortes y coordina el despacho. Envío gratis por compras sobre <span data-freeship>$35.000</span>.</p>
+    <a class="btn btn-primary wa-link" href="#"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.4A10 10 0 1 0 12 2Z"/></svg> Pedir por WhatsApp</a>
+  </div></div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Lo que dicen</span>
+      <h2 class="serif">Clientes que ya compran distinto</h2>
+      <!-- IMPORTANTE: estos testimonios son de muestra, no son reseñas reales.
+           Publicar reseñas ficticias como auténticas es publicidad engañosa (Ley 19.496).
+           Reemplázalos por testimonios reales con autorización del cliente y elimina este aviso. -->
+      <span class="draft-note">Testimonios de muestra · pendientes de reemplazo</span>
+    </div>
+    <div class="testis">
+      <div class="testi"><span class="q serif">“</span><p>Pedí salmón para un asado y llegó impecable, bien frío y a un precio que en la pescadería del barrio ni soñando.</p><div class="who"><div class="av">CM</div><div><b>Carolina M.</b><span>Ñuñoa</span></div></div></div>
+      <div class="testi"><span class="q serif">“</span><p>Los camarones ecuatorianos son de otra categoría. Se nota que es el mismo producto que usan los restaurantes.</p><div class="who"><div class="av">RS</div><div><b>Rodrigo S.</b><span>Las Condes</span></div></div></div>
+      <div class="testi"><span class="q serif">“</span><p>Me encanta que muestren el precio por kilo. Compro claro, sin sorpresas, y el despacho llega en frío.</p><div class="who"><div class="av">PF</div><div><b>Paula F.</b><span>Maipú</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="news">
+  <div class="wrap">
+    <div>
+      <h2 class="serif">Ofertas frescas, directo a tu correo</h2>
+      <p>Suscríbete y recibe primero los precios de temporada y las cajas en promoción.</p>
+    </div>
+    <form id="newsForm" novalidate>
+      <input id="newsEmail" type="email" placeholder="Tu correo electrónico" aria-label="Correo" required autocomplete="email">
+      <button class="btn btn-primary" type="submit" id="newsBtn">Suscribirme</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#inicio"><img src="/assets/foto-07.png" alt=""><span class="wm"><span class="k">MERCADO</span><span class="n">BARRANCA</span></span></a>
+        <p>Pescados y mariscos al precio que paga tu restaurante favorito. Compramos al por mayor para que tú no tengas que hacerlo.</p>
+        <div class="soc">
+          <a class="wa-link" href="#" aria-label="WhatsApp"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.4A10 10 0 1 0 12 2Z"/></svg></a>
+          <!-- TODO: pega la URL real de Instagram y Facebook y descomenta los dos enlaces.
+               Se dejaron ocultos para no publicar íconos que no llevan a ninguna parte.
+          <a href="https://instagram.com/TU_CUENTA" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://facebook.com/TU_PAGINA" target="_blank" rel="noopener" aria-label="Facebook"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V6h-3c-2 0-3 1.5-3 3.5V11H9v3h2v6h3v-6h2.5l.5-3H14V9.5c0-.3.2-.5.5-.5H14Z"/></svg></a>
+          -->
+        </div>
+      </div>
+      <div><h4>Comprar</h4><ul><li><a href="#productos">Salmón</a></li><li><a href="#productos">Camarones</a></li><li><a href="#productos">Pescados</a></li><li><a href="#productos">Mariscos</a></li></ul></div>
+      <!-- Sin páginas internas todavía: estas consultas se resuelven por WhatsApp con el
+           mensaje ya redactado. Cuando existan las páginas, cambia data-ask por su href. -->
+      <div><h4>Ayuda</h4><ul>
+        <li><a class="wa-ask" href="#" data-ask="Hola, ¿cómo compro en Mercado Barranca?">Cómo comprar</a></li>
+        <li><a class="wa-ask" href="#" data-ask="Hola, ¿a qué comunas despachan y cuánto demora?">Despachos</a></li>
+        <li><a class="wa-ask" href="#" data-ask="Hola, ¿cómo mantienen la cadena de frío hasta mi casa?">Cadena de frío</a></li>
+        <li><a class="wa-ask" href="#" data-ask="Hola, tengo una consulta sobre sus productos">Preguntas frecuentes</a></li>
+      </ul></div>
+      <div><h4>Nosotros</h4><ul>
+        <li><a class="wa-ask" href="#" data-ask="Hola, quiero saber mas sobre la calidad HORECA de sus productos">Calidad HORECA</a></li>
+        <li><a class="wa-ask" href="#" data-ask="Hola, quiero cotizar venta a empresas / restaurante">Venta a empresas</a></li>
+        <li><a class="wa-ask" href="#" data-ask="Hola, quiero contactarme con Mercado Barranca">Contacto</a></li>
+      </ul></div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 Mercado Barranca · Hecho en Chile 🇨🇱 · Precios referenciales — borrador inicial</span>
+      <div class="pays"><span>WEBPAY</span><span>VISA</span><span>MASTERCARD</span><span>TRANSFERENCIA</span></div>
+    </div>
+  </div>
+</footer>
+
+<!-- mobile nav -->
+<div class="mnav" id="mnav"><div class="scrim" data-close></div><div class="panel" role="dialog" aria-modal="true" aria-label="Menú">
+  <button class="x" data-close aria-label="Cerrar">×</button>
+  <div style="clear:both"></div>
+  <a href="#inicio" data-close>Inicio</a>
+  <a href="#productos" data-close>Productos</a>
+  <a class="wa-link" href="#" data-close>Pedir por WhatsApp</a>
+</div></div>
+
+<!-- cart drawer -->
+<div class="cart-drawer" id="cartDrawer">
+  <div class="scrim" data-cclose></div>
+  <div class="cart-panel" role="dialog" aria-modal="true" aria-label="Tu carrito">
+    <div class="cart-head"><h3 class="serif">Tu carrito</h3><button class="x" data-cclose aria-label="Cerrar">×</button></div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-foot" id="cartFoot">
+      <div class="ship-bar" id="shipBar"></div>
+      <div class="sumline"><span>Subtotal</span><span id="sumSub">$0</span></div>
+      <div class="sumline"><span>Despacho</span><span id="sumShip">—</span></div>
+      <div class="sumline total"><b>Total</b><b id="sumTotal">$0</b></div>
+      <div class="ck-fields">
+        <input id="ckName" placeholder="Nombre" aria-label="Nombre" autocomplete="given-name" required>
+        <input id="ckLastName" placeholder="Apellido" aria-label="Apellido" autocomplete="family-name" required>
+        <input id="ckPhone" class="full" type="tel" inputmode="tel" placeholder="Teléfono de contacto (+56 9 ...)" aria-label="Número de contacto" autocomplete="tel" required>
+        <input id="ckEmail" class="full" type="email" inputmode="email" placeholder="Correo electrónico" aria-label="Correo electrónico" autocomplete="email" required>
+      </div>
+      <button class="btn btn-primary checkout" id="checkoutBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.4A10 10 0 1 0 12 2Z"/></svg> Pedir por WhatsApp</button>
+      <div class="cart-note">Coordinas pago y entrega directo por WhatsApp.</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12l5 5L20 6"/></svg><span id="toastMsg">Añadido</span></div>
+
+<script src="/js/app.js" defer></script>
+</body>
+</html>

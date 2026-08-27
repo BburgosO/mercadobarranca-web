@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel · Mercado Barranca</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230e1a24'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' font-weight='600' fill='%23e19140' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<!-- ============ pantalla de configuración ============ -->
+<div class="setup" id="setup" style="display:none">
+  <h2>Falta configurar el panel</h2>
+  <p style="color:var(--dim)">Abre <code>admin.html</code> en un editor y pega tus credenciales de Supabase en las dos primeras líneas del script:</p>
+  <ol>
+    <li>Entra a tu proyecto en <code>supabase.com</code></li>
+    <li>Ve a <b>Settings → API</b></li>
+    <li>Copia <b>Project URL</b> en <code>SUPABASE_URL</code></li>
+    <li>Copia la clave <b>anon public</b> en <code>SUPABASE_ANON_KEY</code></li>
+    <li>Guarda y recarga esta página</li>
+  </ol>
+  <p style="color:var(--dim2);font-size:.85rem;margin-top:18px">Antes de esto debes haber ejecutado <code>supabase-schema.sql</code> en el SQL Editor.</p>
+</div>
+
+<!-- ============ login ============ -->
+<div class="login" id="login" style="display:none">
+  <div class="box">
+    <div class="k">MERCADO</div>
+    <h1>Barranca</h1>
+    <form id="loginForm">
+      <input id="email" type="email" placeholder="Correo" autocomplete="username" required>
+      <input id="pass" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+      <button class="btn btn-primary" id="loginBtn" type="submit">Entrar</button>
+    </form>
+    <div class="msg err" id="loginMsg"></div>
+  </div>
+</div>
+
+<!-- ============ aplicación ============ -->
+<div class="app" id="app">
+  <header>
+    <div class="head">
+      <div class="brand"><span class="k">MERCADO</span><span class="n">BARRANCA</span></div>
+      <div class="who">
+        <span id="userEmail"></span>
+        <button class="btn btn-ghost btn-sm" id="logout">Salir</button>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button data-view="productos" class="on">Productos</button>
+      <button data-view="banners">Banners</button>
+      <button data-view="tienda">Tienda</button>
+      <button data-view="pedidos">Pedidos</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- PRODUCTOS -->
+    <section class="view on" id="v-productos">
+      <div class="view-head">
+        <h2>Productos</h2>
+        <div class="sp">
+          <button class="btn btn-ghost btn-sm" id="reloadProd">Recargar</button>
+          <button class="btn btn-primary btn-sm" id="newProd">+ Nuevo producto</button>
+        </div>
+      </div>
+      <p class="hint">Edita el precio y presiona Guardar en la fila. Haz clic en la foto para reemplazarla. Lo que apagues deja de verse en la web.</p>
+      <div class="tablewrap"><table>
+        <thead><tr>
+          <th style="width:70px">Foto</th><th class="c-name">Nombre</th><th>Categoría</th><th class="c-fmt">Formato</th>
+          <th class="w-price">Precio</th><th>Etiqueta</th><th style="width:60px">Orden</th>
+          <th style="width:60px">Activo</th><th style="width:150px"></th>
+        </tr></thead>
+        <tbody id="prodBody"><tr><td colspan="9" class="loading">Cargando…</td></tr></tbody>
+      </table></div>
+    </section>
+
+    <!-- BANNERS -->
+    <section class="view" id="v-banners">
+      <div class="view-head">
+        <h2>Banners del inicio</h2>
+        <div class="sp"><button class="btn btn-primary btn-sm" id="newBanner">+ Nuevo banner</button></div>
+      </div>
+      <p class="hint">En el título puedes usar <code style="color:var(--orange)">&lt;em&gt;texto&lt;/em&gt;</code> para destacar en cursiva naranja.</p>
+      <div class="cards" id="bannerList"><div class="loading">Cargando…</div></div>
+    </section>
+
+    <!-- TIENDA -->
+    <section class="view" id="v-tienda">
+      <div class="view-head"><h2>Datos de la tienda</h2></div>
+      <p class="hint">Estos valores mandan sobre lo que dice la web: el carrito y los textos se actualizan solos.</p>
+      <div class="card" id="cfgCard">
+        <div class="grid3">
+          <div class="field"><label>WhatsApp (solo números, con 56)</label><input id="cfgWa" placeholder="56912345678"></div>
+          <div class="field"><label>Envío gratis desde ($)</label><input id="cfgFree" type="number" min="0" step="1000"></div>
+          <div class="field"><label>Costo de despacho ($)</label><input id="cfgShip" type="number" min="0" step="500"></div>
+        </div>
+        <div class="field"><label>Anuncio superior</label><input id="cfgAnn1"></div>
+        <div class="field"><label>Anuncio superior · segundo texto</label><input id="cfgAnn2"></div>
+        <div class="card-foot">
+          <button class="btn btn-primary btn-sm" id="saveCfg">Guardar cambios</button>
+          <span class="sp" style="font-size:.8rem;color:var(--dim2)" id="cfgState"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PEDIDOS -->
+    <section class="view" id="v-pedidos">
+      <div class="view-head">
+        <h2>Pedidos</h2>
+        <div class="sp">
+          <select id="filtroEstado" style="width:auto">
+            <option value="">Todos los estados</option>
+            <option value="nuevo">Nuevos</option>
+            <option value="contactado">Contactados</option>
+            <option value="preparando">Preparando</option>
+            <option value="despachado">Despachados</option>
+            <option value="entregado">Entregados</option>
+            <option value="anulado">Anulados</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="reloadOrders">Recargar</button>
+        </div>
+      </div>
+      <p class="hint">Los pedidos se guardan cuando el cliente aprieta “Pedir por WhatsApp”, aunque después no envíe el mensaje.</p>
+      <div id="orderList"><div class="loading">Cargando…</div></div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="filePicker" accept="image/*" style="display:none">
+
+<script src="/js/admin.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+services:
+  web:
+    build: .
+    container_name: mercadobarranca-web
+    restart: unless-stopped
+    ports:
+      # Solo accesible desde el propio host: nginx del servidor hace de proxy.
+      # Nunca cambiar a 0.0.0.0, eso lo expondría directo a internet.
+      - "127.0.0.1:8041:80"

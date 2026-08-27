@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Producto · Mercado Barranca</title>
+<meta name="description" content="Pescados y mariscos de calidad HORECA al mismo precio que paga un restaurante. Despacho refrigerado en la Región Metropolitana.">
+<meta name="theme-color" content="#0e1a24">
+<meta property="og:type" content="product">
+<meta property="og:site_name" content="Mercado Barranca">
+<meta property="og:locale" content="es_CL">
+<meta property="og:title" content="Mercado Barranca — Pescados y mariscos a precio de mayorista">
+<meta property="og:description" content="Compra el mismo pescado que llega a los restaurantes, al mismo precio. Despacho refrigerado en la RM.">
+<meta property="og:image" content="https://mercadobarranca.cl/assets/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230e1a24'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' font-weight='600' fill='%23e19140' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="/css/producto.css">
+</head>
+<body>
+
+<div class="promo"><div class="wrap">
+  <span id="ann1"><b>Lo que compran los restaurantes,</b> tú lo compras igual de barato</span>
+  <span class="sep hideM">◆</span>
+  <span class="hideM" id="ann2">Despacho refrigerado en la Región Metropolitana</span>
+</div></div>
+
+<header>
+  <div class="wrap head">
+    <a class="brand" href="/" aria-label="Mercado Barranca">
+      <img src="/assets/foto-07.png" alt="Mercado Barranca">
+      <span class="wm"><span class="k">MERCADO</span><span class="n">BARRANCA</span></span>
+    </a>
+    <nav class="main">
+      <a href="/">Inicio</a>
+      <a href="/#productos">Productos</a>
+    </nav>
+    <div class="head-actions">
+      <a class="wa-btn" id="waBtn" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.4A10 10 0 1 0 12 2Z"/></svg><span class="lbl">Pedir</span></a>
+      <a class="iconbtn" href="/#carrito" aria-label="Ver carrito">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 7H6"/><circle cx="9" cy="20" r="1.2"/><circle cx="18" cy="20" r="1.2"/></svg>
+        <span class="cnt" id="cnt">0</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  <div class="state" id="loading">Cargando producto…</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="/"><img src="/assets/foto-07.png" alt=""><span class="wm"><span class="k">MERCADO</span><span class="n">BARRANCA</span></span></a>
+        <p>Pescados y mariscos al precio que paga tu restaurante favorito. Compramos al por mayor para que tú no tengas que hacerlo.</p>
+      </div>
+      <div><h4>Comprar</h4><ul>
+        <li><a href="/#productos">Salmón</a></li>
+        <li><a href="/#productos">Camarones</a></li>
+        <li><a href="/#productos">Pescados</a></li>
+        <li><a href="/#productos">Mariscos</a></li>
+      </ul></div>
+      <div><h4>Ayuda</h4><ul>
+        <li><a class="wa-ask" href="#" data-ask="Hola, ¿cómo compro en Mercado Barranca?">Cómo comprar</a></li>
+        <li><a class="wa-ask" href="#" data-ask="Hola, ¿a qué comunas despachan y cuánto demora?">Despachos</a></li>
+        <li><a class="wa-ask" href="#" data-ask="Hola, ¿cómo mantienen la cadena de frío hasta mi casa?">Cadena de frío</a></li>
+        <li><a class="wa-ask" href="#" data-ask="Hola, quiero contactarme con Mercado Barranca">Contacto</a></li>
+      </ul></div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 Mercado Barranca · Hecho en Chile 🇨🇱 · Precios referenciales — borrador inicial</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"><span id="toastMsg"></span><a href="/#carrito">Ver carrito</a></div>
+
+<script src="/js/producto.js" defer></script>
+</body>
+</html>

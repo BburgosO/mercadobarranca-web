@@ -1,0 +1,22 @@
+# Sistema
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Temporales
+*.log
+*.tmp
+*.bak
+*~
+
+# Nunca subir credenciales de servidor ni claves privadas
+*.pem
+*.key
+.env
+.env.*
+.htpasswd*

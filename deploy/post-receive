@@ -1,0 +1,29 @@
+#!/bin/bash
+# Hook de despliegue del repo bare.
+#
+# Instalación en el servidor:
+#   cp deploy/post-receive /opt/mercadobarranca-web.git/hooks/post-receive
+#   chmod +x /opt/mercadobarranca-web.git/hooks/post-receive
+#
+# Con esto, cada "git push produccion main" desde tu equipo deja el sitio
+# actualizado y el contenedor reconstruido.
+
+set -e
+
+DESTINO="/opt/mercadobarranca-web/web"
+RAMA="main"
+
+while read oldrev newrev ref; do
+  if [[ $ref = refs/heads/$RAMA ]]; then
+    echo "→ Desplegando $RAMA en $DESTINO"
+    git --work-tree="$DESTINO" --git-dir=/opt/mercadobarranca-web.git checkout -f "$RAMA"
+
+    cd "$DESTINO"
+    echo "→ Reconstruyendo contenedor"
+    docker compose up -d --build
+
+    echo "→ Listo: https://mercadobarranca.cl"
+  else
+    echo "Rama $ref ignorada (solo se despliega $RAMA)"
+  fi
+done
