@@ -4,6 +4,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY index.html /usr/share/nginx/html/
 COPY producto.html /usr/share/nginx/html/
+COPY despachos.html /usr/share/nginx/html/
+COPY empresas.html /usr/share/nginx/html/
 COPY robots.txt /usr/share/nginx/html/
 COPY sitemap.xml /usr/share/nginx/html/
 COPY css/ /usr/share/nginx/html/css/

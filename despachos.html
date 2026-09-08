@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Producto · Mercado Barranca</title>
-<meta name="description" content="Pescados y mariscos de calidad HORECA al mismo precio que paga un restaurante. Despacho refrigerado en la Región Metropolitana.">
+<title>Despachos y cobertura · Mercado Barranca</title>
+<meta name="description" content="Comunas con despacho refrigerado en la Región Metropolitana y la V Región, con el costo de envío de cada una.">
 <meta name="theme-color" content="#0e1a24">
 <meta property="og:type" content="product">
 <meta property="og:site_name" content="Mercado Barranca">
@@ -19,6 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="/css/producto.css">
+<link rel="stylesheet" href="/css/paginas.css">
 </head>
 <body>
 
@@ -48,8 +49,55 @@
   </div>
 </header>
 
-<main class="wrap" id="main">
-  <div class="state" id="loading">Cargando producto…</div>
+<main class="wrap pagina">
+  <nav class="crumbs" aria-label="Migas de pan">
+    <a href="/">Inicio</a><span class="sep">/</span><span>Despachos</span>
+  </nav>
+
+  <div class="intro">
+    <span class="kicker">Cobertura</span>
+    <h1 class="serif">Dónde y a cuánto despachamos</h1>
+    <p>Estas son las comunas a las que llegamos hoy, con su costo de despacho. Pasa el cursor sobre el mapa o sobre la lista para ubicar cada una.</p>
+  </div>
+
+  <section class="zona">
+    <div class="zona-head">
+      <h2 class="serif">Región Metropolitana</h2>
+      <span class="dato">Gran Santiago</span>
+    </div>
+    <div class="zona-grid">
+      <div>
+        <div class="mapa" id="mapaRM" data-src="/assets/mapa-rm.svg"></div>
+        <div class="leyenda">
+          <span><i class="c-si"></i> Con despacho</span>
+          <span><i class="c-no"></i> Sin cobertura por ahora</span>
+        </div>
+      </div>
+      <div class="tarifas" id="listaRM"></div>
+    </div>
+  </section>
+
+  <section class="zona">
+    <div class="zona-head">
+      <h2 class="serif">V Región</h2>
+      <span class="dato">Valparaíso y alrededores</span>
+    </div>
+    <div class="zona-grid">
+      <div>
+        <div class="mapa" id="mapaV" data-src="/assets/mapa-v.svg"></div>
+        <div class="leyenda">
+          <span><i class="c-si"></i> Con despacho</span>
+          <span><i class="c-no"></i> Sin cobertura por ahora</span>
+        </div>
+      </div>
+      <div class="tarifas" id="listaV"></div>
+    </div>
+  </section>
+
+  <div class="aviso-envio">
+    <b>Envío gratis</b> en compras sobre <b id="umbral">$40.000</b>, en cualquier comuna con cobertura.
+    ¿Tu comuna no aparece? <a class="wa-ask" href="#" data-ask="Hola, ¿despachan a mi comuna?" style="color:var(--orange)">Escríbenos</a> y vemos si podemos llegar.
+  </div>
 </main>
 
 <footer>
@@ -80,6 +128,6 @@
 
 <div class="toast" id="toast"><span id="toastMsg"></span><a href="/#carrito">Ver carrito</a></div>
 
-<script src="/js/producto.js" defer></script>
+<script src="/js/despachos.js" defer></script>
 </body>
 </html>

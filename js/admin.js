@@ -51,7 +51,7 @@ async function entrar(session){
   $("login").style.display="none";
   $("app").classList.add("on");
   $("userEmail").textContent = session.user.email;
-  cargarProductos(); cargarBanners(); cargarConfig(); cargarPedidos();
+  cargarProductos(); cargarBanners(); cargarCategorias(); cargarTestimonios(); cargarEncabezadoCats(); cargarConfig(); cargarPedidos();
 }
 
 function mensajeLogin(txt){
@@ -314,7 +314,8 @@ $("filePicker").addEventListener("change", async e=>{
   if (upErr){ toast("No se pudo subir: "+upErr.message, true); return; }
 
   const { data:{ publicUrl } } = sb.storage.from("productos").getPublicUrl(ruta);
-  const tabla = fotoDestino.tipo==="banner" ? "banners" : "products";
+  const tabla = fotoDestino.tipo==="banner" ? "banners"
+              : fotoDestino.tipo==="categoria" ? "categories" : "products";
 
   // Las fotos de la galería van al array; el resto reemplaza la imagen principal.
   let cambio;
@@ -339,6 +340,9 @@ $("filePicker").addEventListener("change", async e=>{
       $("prodBody").querySelector(`tr[data-ficha-row="${p.id}"]`).classList.add("open");
       $("prodBody").querySelector(`[data-ficha="${p.id}"]`).textContent="Cerrar";
     }
+  } else if (tabla==="categories"){
+    Object.assign(buscarCat(fotoDestino.id), cambio);
+    pintarCategorias();
   } else {
     Object.assign(banners.find(b=>b.id===fotoDestino.id), cambio);
     pintarBanners();
@@ -419,6 +423,39 @@ $("bannerList").addEventListener("click", async e=>{
   }
 });
 
+// Encabezados de sección (viven en store_config, se editan aquí)
+const ENCABEZADOS = [
+  { pref:"cfgCats",  campos:{kicker:"cats_kicker",  title:"cats_title",  subtitle:"cats_subtitle"},  boton:"saveCatsHead" },
+  { pref:"cfgProds", campos:{kicker:"prods_kicker", title:"prods_title", subtitle:"prods_subtitle"}, boton:"saveProdsHead" }
+];
+
+async function cargarEncabezadoCats(){
+  const { data } = await sb.from("store_config").select("*").eq("id",1).single();
+  if(!data) return;
+  for(const e of ENCABEZADOS){
+    $(e.pref+"Kicker").value   = data[e.campos.kicker]   || "";
+    $(e.pref+"Title").value    = data[e.campos.title]    || "";
+    $(e.pref+"Subtitle").value = data[e.campos.subtitle] || "";
+  }
+}
+
+for(const e of ENCABEZADOS){
+  $(e.boton).addEventListener("click", async () => {
+    const btn = $(e.boton);
+    const titulo = $(e.pref+"Title").value.trim();
+    if(!titulo){ toast("El título no puede quedar vacío", true); $(e.pref+"Title").focus(); return; }
+    const cambio = {};
+    cambio[e.campos.kicker]   = $(e.pref+"Kicker").value.trim();
+    cambio[e.campos.title]    = titulo;
+    cambio[e.campos.subtitle] = $(e.pref+"Subtitle").value.trim();
+    btn.disabled = true; btn.textContent = "Guardando…";
+    const { error } = await sb.from("store_config").update(cambio).eq("id", 1);
+    btn.disabled = false; btn.textContent = "Guardar encabezado";
+    if(error){ toast("No se pudo guardar: "+error.message, true); return; }
+    toast("Encabezado guardado");
+  });
+}
+
 $("newBanner").addEventListener("click", async ()=>{
   const orden = banners.length ? Math.max(...banners.map(b=>b.sort_order))+10 : 10;
   const { data, error } = await sb.from("banners")
@@ -430,6 +467,192 @@ $("newBanner").addEventListener("click", async ()=>{
 
 
 // =====================================================================
+//  CATEGORÍAS · las tarjetas del bloque "Compra por categoría"
+// =====================================================================
+let categorias = [];
+const buscarCat = id => categorias.find(x => String(x.id) === String(id));
+
+async function cargarCategorias(){
+  const { data, error } = await sb.from("categories").select("*").order("sort_order").order("name");
+  if (error){ $("catBody").innerHTML = '<tr><td colspan="8" class="loading">Error: '+esc(error.message)+'</td></tr>'; return; }
+  categorias = data;
+  pintarCategorias();
+}
+
+function pintarCategorias(){
+  const body = $("catBody");
+  if (!categorias.length){ body.innerHTML = '<tr><td colspan="8" class="loading">Sin categorías. Crea la primera.</td></tr>'; return; }
+  body.innerHTML = categorias.map(c => `
+    <tr data-cid="${c.id}" class="${c.active?"":"off"}">
+      <td>${c.image_url
+        ? `<img class="thumb" src="${esc(c.image_url)}" alt="" data-cfoto="${c.id}" title="Cambiar foto">`
+        : `<div class="thumb thumb-empty" data-cfoto="${c.id}" title="Subir foto">Subir<br>foto</div>`}</td>
+      <td><input data-cf="name" value="${esc(c.name)}" placeholder="Salmón"></td>
+      <td><input data-cf="kicker" value="${esc(c.kicker)}" placeholder="Atlántico chileno"></td>
+      <td><input data-cf="link" value="${esc(c.link)}" placeholder="#productos"></td>
+      <td style="text-align:center"><label class="sw" title="Ocupa el doble de espacio en el mosaico"><input type="checkbox" data-cf="featured"${c.featured?" checked":""}><span></span></label></td>
+      <td><input data-cf="sort_order" class="w-num" type="number" step="10" value="${c.sort_order}"></td>
+      <td><label class="sw"><input type="checkbox" data-cf="active"${c.active?" checked":""}><span></span></label></td>
+      <td class="acts">
+        <button class="btn btn-primary btn-sm" data-csave="${c.id}" disabled>Guardar</button>
+        <button class="btn btn-danger btn-sm" data-cdel="${c.id}">Borrar</button>
+      </td>
+    </tr>`).join("");
+}
+
+$("catBody").addEventListener("input", e => marcarCat(e));
+$("catBody").addEventListener("change", e => marcarCat(e));
+function marcarCat(e){
+  const tr = e.target.closest("tr[data-cid]");
+  if (!tr || !e.target.dataset.cf) return;
+  tr.classList.add("dirty");
+  tr.querySelector("[data-csave]").disabled = false;
+}
+
+$("catBody").addEventListener("click", async e => {
+  const save = e.target.closest("[data-csave]"),
+        del  = e.target.closest("[data-cdel]"),
+        foto = e.target.closest("[data-cfoto]");
+  if (foto) return pedirFoto(foto.dataset.cfoto, "categoria");
+  if (del)  return borrarCategoria(del.dataset.cdel);
+  if (save) return guardarCategoria(save.dataset.csave, save);
+});
+
+async function guardarCategoria(id, btn){
+  const tr = $("catBody").querySelector('tr[data-cid="'+id+'"]');
+  const v = {};
+  tr.querySelectorAll("[data-cf]").forEach(el => {
+    v[el.dataset.cf] = el.type === "checkbox" ? el.checked
+                     : el.type === "number"   ? Number(el.value||0)
+                     : el.value.trim();
+  });
+  if (!v.name){ toast("La categoría necesita un nombre", true); return; }
+  btn.disabled = true; btn.textContent = "…";
+  const { error } = await sb.from("categories").update(v).eq("id", id);
+  btn.textContent = "Guardar";
+  if (error){ btn.disabled = false; toast("No se pudo guardar: "+error.message, true); return; }
+  tr.classList.remove("dirty");
+  tr.classList.toggle("off", !v.active);
+  Object.assign(buscarCat(id), v);
+  toast(v.name+" · guardada");
+}
+
+async function borrarCategoria(id){
+  const c = buscarCat(id);
+  if (!confirm('¿Borrar la categoría "'+c.name+'"? Si solo quieres sacarla de la portada, apaga el interruptor "Activa".')) return;
+  const { error } = await sb.from("categories").delete().eq("id", id);
+  if (error){ toast("No se pudo borrar: "+error.message, true); return; }
+  categorias = categorias.filter(x => String(x.id) !== String(id));
+  pintarCategorias();
+  toast("Categoría borrada");
+}
+
+$("newCat").addEventListener("click", async () => {
+  const orden = categorias.length ? Math.max(...categorias.map(c => c.sort_order)) + 10 : 10;
+  const { data, error } = await sb.from("categories")
+    .insert({ name:"Categoría nueva", kicker:"", sort_order:orden, active:false })
+    .select().single();
+  if (error){ toast("No se pudo crear: "+error.message, true); return; }
+  categorias.push(data);
+  pintarCategorias();
+  const tr = $("catBody").querySelector('tr[data-cid="'+data.id+'"]');
+  tr.scrollIntoView({behavior:"smooth", block:"center"});
+  tr.querySelector('[data-cf="name"]').select();
+  toast("Creada como inactiva: complétala y actívala");
+});
+
+$("reloadCats").addEventListener("click", () => { cargarCategorias(); toast("Lista actualizada"); });
+
+// =====================================================================
+//  TESTIMONIOS
+// =====================================================================
+let testimonios = [];
+const buscarTesti = id => testimonios.find(t => String(t.id) === String(id));
+
+async function cargarTestimonios(){
+  const { data, error } = await sb.from("testimonials").select("*").order("sort_order");
+  if (error){ $("testiList").innerHTML = '<div class="empty">Error: '+esc(error.message)+'</div>'; return; }
+  testimonios = data; pintarTestimonios();
+}
+
+function pintarTestimonios(){
+  const box = $("testiList");
+  if (!testimonios.length){ box.innerHTML = '<div class="empty">Sin testimonios. Crea el primero.</div>'; return; }
+  box.innerHTML = testimonios.map(t => `
+    <div class="card" data-tid="${t.id}">
+      <div class="field">
+        <label>Testimonio</label>
+        <textarea data-tf="quote" rows="3" placeholder="Lo que dijo el cliente">${esc(t.quote)}</textarea>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>Nombre</label><input data-tf="author" value="${esc(t.author)}" placeholder="Carolina M."></div>
+        <div class="field"><label>Comuna</label><input data-tf="location" value="${esc(t.location)}" placeholder="Ñuñoa"></div>
+        <div class="field"><label>Orden</label><input data-tf="sort_order" type="number" step="10" value="${t.sort_order}"></div>
+      </div>
+      <div class="card-foot">
+        <label class="sw" title="Visible en la portada"><input type="checkbox" data-tf="active"${t.active?" checked":""}><span></span></label>
+        <span style="font-size:.78rem;color:var(--dim2)">Visible</span>
+        <label class="sw" style="margin-left:16px" title="Marca que no es una reseña real"><input type="checkbox" data-tf="is_sample"${t.is_sample?" checked":""}><span></span></label>
+        <span style="font-size:.78rem;color:var(--dim2)">De muestra</span>
+        <span class="sp"></span>
+        <button class="btn btn-danger btn-sm" data-tdel="${t.id}">Borrar</button>
+        <button class="btn btn-primary btn-sm" data-tsave="${t.id}" disabled>Guardar</button>
+      </div>
+    </div>`).join("");
+}
+
+$("testiList").addEventListener("input", e => marcarTesti(e));
+$("testiList").addEventListener("change", e => marcarTesti(e));
+function marcarTesti(e){
+  const c = e.target.closest("[data-tid]");
+  if (!c || !e.target.dataset.tf) return;
+  c.classList.add("dirty");
+  c.querySelector("[data-tsave]").disabled = false;
+}
+
+$("testiList").addEventListener("click", async e => {
+  const save = e.target.closest("[data-tsave]"), del = e.target.closest("[data-tdel]");
+  if (del){
+    const t = buscarTesti(del.dataset.tdel);
+    if (!confirm('¿Borrar el testimonio de '+t.author+'?')) return;
+    const { error } = await sb.from("testimonials").delete().eq("id", del.dataset.tdel);
+    if (error){ toast("No se pudo borrar: "+error.message, true); return; }
+    testimonios = testimonios.filter(x => String(x.id) !== String(del.dataset.tdel));
+    pintarTestimonios(); toast("Testimonio borrado");
+  }
+  if (save){
+    const id = save.dataset.tsave, card = save.closest("[data-tid]");
+    const v = {};
+    card.querySelectorAll("[data-tf]").forEach(el => {
+      v[el.dataset.tf] = el.type === "checkbox" ? el.checked
+                       : el.type === "number"   ? Number(el.value||0)
+                       : el.value.trim();
+    });
+    if (!v.quote){ toast("El testimonio no puede quedar vacío", true); return; }
+    if (!v.author){ toast("Falta el nombre de quien lo dijo", true); return; }
+    save.disabled = true; save.textContent = "…";
+    const { error } = await sb.from("testimonials").update(v).eq("id", id);
+    save.textContent = "Guardar";
+    if (error){ save.disabled = false; toast("No se pudo guardar: "+error.message, true); return; }
+    card.classList.remove("dirty");
+    Object.assign(buscarTesti(id), v);
+    toast("Testimonio guardado");
+  }
+});
+
+$("newTesti").addEventListener("click", async () => {
+  const orden = testimonios.length ? Math.max(...testimonios.map(t => t.sort_order)) + 10 : 10;
+  const { data, error } = await sb.from("testimonials")
+    .insert({ quote:"", author:"", location:"", sort_order:orden, active:false, is_sample:false })
+    .select().single();
+  if (error){ toast("No se pudo crear: "+error.message, true); return; }
+  testimonios.push(data); pintarTestimonios();
+  toast("Creado como oculto: complétalo y actívalo");
+});
+
+$("reloadTestis").addEventListener("click", () => { cargarTestimonios(); toast("Lista actualizada"); });
+
+// =====================================================================
 //  TIENDA
 // =====================================================================
 async function cargarConfig(){
@@ -437,6 +660,8 @@ async function cargarConfig(){
   if (error){ $("cfgState").textContent="Error: "+error.message; return; }
   $("cfgWa").value=data.whatsapp; $("cfgFree").value=data.free_ship_threshold; $("cfgShip").value=data.ship_cost;
   $("cfgAnn1").value=data.announcement; $("cfgAnn2").value=data.announcement_2;
+  $("cfgShowStatus").checked = data.show_status === true;
+  $("cfgShowCats").checked = data.show_categories === true;
   $("cfgState").textContent="Actualizado el "+fecha(data.updated_at);
 }
 
@@ -450,6 +675,8 @@ $("saveCfg").addEventListener("click", async ()=>{
     ship_cost: Number($("cfgShip").value||0),
     announcement: $("cfgAnn1").value.trim(),
     announcement_2: $("cfgAnn2").value.trim(),
+    show_status: $("cfgShowStatus").checked,
+    show_categories: $("cfgShowCats").checked,
     updated_at: new Date().toISOString()
   }).eq("id",1);
   btn.disabled=false; btn.textContent="Guardar cambios";

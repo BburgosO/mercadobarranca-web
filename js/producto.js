@@ -15,7 +15,8 @@ const CAT_IMG = { "Salmón":IMG_SALM, "Camarones":IMG_CAM, "Pescados":IMG_ATUN, 
 const IMG_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23dcebf5'/%3E%3Ctext x='200' y='215' font-size='120' text-anchor='middle'%3E%F0%9F%90%9F%3C/text%3E%3C/svg%3E";
 
 // Mismos valores que el sitio; se sobrescriben con store_config al cargar.
-let WHATSAPP="56997463689", FREE_SHIP=35000, SHIP_COST=3990;
+let WHATSAPP="56965128341", FREE_SHIP=40000, SHIP_COST=3990;
+let MOSTRAR_ESTADO=false;   // se enciende desde el panel (Tienda)
 const CART_KEY="mb_cart_v1";
 const GREET="¡Hola Mercado Barranca! Quiero hacer un pedido 🐟";
 
@@ -93,6 +94,7 @@ async function cargar(){
       WHATSAPP=cfg.whatsapp||WHATSAPP;
       FREE_SHIP=cfg.free_ship_threshold||FREE_SHIP;
       SHIP_COST=cfg.ship_cost??SHIP_COST;
+      MOSTRAR_ESTADO=cfg.show_status===true;
       if(cfg.announcement) $("ann1").textContent=cfg.announcement;
       if(cfg.announcement_2) $("ann2").textContent=cfg.announcement_2;
     }
@@ -125,13 +127,10 @@ function pintar(){
   const principalSrc = p.image_url || CAT_IMG[p.category] || IMG_FALLBACK;
   const fotos=[principalSrc].concat(Array.isArray(p.gallery)?p.gallery:[]).filter(Boolean);
   const principal = fotos[0];
-  // La ficha muestra 4 espacios: los que falten quedan marcados como pendientes.
-  const slots=[];
-  for(let i=0;i<4;i++){
-    slots.push(fotos[i]
-      ? `<button class="thumb${i===0?" on":""}" data-src="${esc(fotos[i])}" aria-label="Ver imagen ${i+1}"><img src="${esc(fotos[i])}" alt=""></button>`
-      : `<span class="thumb empty">Foto<br>pendiente</span>`);
-  }
+  // Solo se muestran las fotos que existen. Con una sola no se dibujan
+  // miniaturas: no hay nada entre qué elegir.
+  const slots = fotos.map((src,i) =>
+    `<button class="thumb${i===0?" on":""}" data-src="${esc(src)}" aria-label="Ver imagen ${i+1}"><img src="${esc(src)}" alt=""></button>`);
 
   const {label,note}=priceInfo(p);
   const oferta = p.compare_at_price && p.compare_at_price>p.price;
@@ -151,7 +150,7 @@ function pintar(){
           ${p.badge?`<span class="badge ${p.badge==='of'?'of':'nv'}">${p.badge==='of'?'Oferta':'Nuevo'}</span>`:""}
           <img id="gmainImg" src="${esc(principal)}" alt="${esc(p.name)}">
         </div>
-        <div class="thumbs" id="thumbs">${slots.join("")}</div>
+        ${slots.length>1?`<div class="thumbs" id="thumbs">${slots.join("")}</div>`:""}
       </div>
 
       <div class="info">
@@ -176,7 +175,7 @@ function pintar(){
         </div>
 
         <div class="ship-note">
-          <div><span class="ic">🚚</span><span>Envío gratis en compras sobre <b>${CLP(FREE_SHIP)}</b>. Bajo ese monto, el despacho cuesta ${CLP(SHIP_COST)}.${falta>0?` Te faltan <b>${CLP(falta)}</b> con este producto.`:""}</span></div>
+          <div><span class="ic">🚚</span><span>Envío gratis en compras sobre <b>${CLP(FREE_SHIP)}</b>.${falta>0?` Te faltan <b>${CLP(falta)}</b> con este producto.`:""}</span></div>
           <div><span class="ic">❄️</span><span>Cadena de frío desde la bodega hasta tu puerta, solo en la Región Metropolitana.</span></div>
           <div><span class="ic">💬</span><span>El pedido se coordina y se paga por WhatsApp.</span></div>
         </div>
@@ -185,7 +184,7 @@ function pintar(){
           ${p.sku?`<div><dt>SKU</dt><dd>${esc(p.sku)}</dd></div>`:""}
           <div><dt>Categoría</dt><dd>${esc(p.category)}</dd></div>
           ${p.format?`<div><dt>Formato</dt><dd>${esc(p.format)}</dd></div>`:""}
-          <div><dt>Estado</dt><dd style="color:var(--green);font-weight:600">Disponible</dd></div>
+          ${MOSTRAR_ESTADO?`<div><dt>Estado</dt><dd style="color:var(--green);font-weight:600">Disponible</dd></div>`:""}
         </dl>
       </div>
     </div>
@@ -194,10 +193,21 @@ function pintar(){
       ${p.description?`<div class="block wide"><h2 class="serif">Descripción</h2><p>${esc(p.description)}</p></div>`:""}
       ${p.features?`<div class="block"><h2 class="serif">Características</h2>${lista(p.features)}</div>`:""}
       ${p.recommendations?`<div class="block"><h2 class="serif">Recomendaciones</h2>${lista(p.recommendations)}</div>`:""}
-    </div>`;
+    </div>
+
+    <section class="related" id="related" hidden>
+      <div class="rel-head">
+        <h2 class="serif">Sigue comprando</h2>
+        <div class="rel-nav">
+          <button id="relPrev" aria-label="Anterior">‹</button>
+          <button id="relNext" aria-label="Siguiente">›</button>
+        </div>
+      </div>
+      <div class="rel-track" id="relTrack"></div>
+    </section>`;
 
   // galería
-  $("thumbs").addEventListener("click",e=>{
+  $("thumbs")?.addEventListener("click",e=>{
     const b=e.target.closest("[data-src]"); if(!b) return;
     $("gmainImg").src=b.dataset.src;
     document.querySelectorAll(".thumb").forEach(t=>t.classList.toggle("on",t===b));
@@ -214,6 +224,60 @@ function pintar(){
     saveCart(cart); pintarContador();
     toast(`${cantidad}× ${p.name} · agregado`);
   };
+
+  pintarRelacionados();
+}
+
+
+// La ficha se puede abrir como /producto/<slug> o como producto.html?p=<slug>.
+// Los enlaces del carrusel mantienen la forma con la que llegó el visitante.
+const urlFicha = slug => location.pathname.includes("/producto/")
+  ? "/producto/" + encodeURIComponent(slug)
+  : "producto.html?p=" + encodeURIComponent(slug);
+
+// ---------- carrusel: el resto del catálogo, para seguir comprando ----------
+async function pintarRelacionados(){
+  if(!sb || !producto) return;
+  const { data } = await sb.from("products").select("*").eq("active",true).order("sort_order");
+  if(!data) return;
+
+  // Todos menos el que se está viendo; primero los de su misma categoría.
+  const otros = data.filter(x => x.id !== producto.id)
+    .sort((a,b) => (a.category===producto.category?0:1) - (b.category===producto.category?0:1));
+  if(!otros.length) return;
+
+  const track = $("relTrack");
+  track.innerHTML = otros.map(x=>{
+    const foto = x.image_url || CAT_IMG[x.category] || IMG_FALLBACK;
+    const {label} = priceInfo(x);
+    return `
+    <a class="rel-card" href="${urlFicha(x.slug||"")}">
+      <div class="rel-ph">
+        ${x.badge?`<span class="badge ${x.badge==='of'?'of':'nv'}">${x.badge==='of'?'Oferta':'Nuevo'}</span>`:""}
+        <img src="${esc(foto)}" alt="${esc(x.name)}" loading="lazy">
+      </div>
+      <div class="rel-body">
+        <div class="rel-cat">${esc(x.category)}</div>
+        <h3 class="serif">${esc(x.name)}</h3>
+        ${x.format?`<div class="rel-fmt">${esc(x.format)}</div>`:""}
+        <div class="rel-price">${CLP(x.price)} <small>${esc(label)}</small></div>
+      </div>
+    </a>`;}).join("");
+
+  $("related").hidden = false;
+
+  // Flechas: se desplaza de a una tarjeta y se apagan en los extremos.
+  // El paso se mide de la tarjeta real para que el anclaje calce.
+  const primera = track.querySelector(".rel-card");
+  const paso = primera ? primera.getBoundingClientRect().width + 18 : 250;
+  const estado = ()=>{
+    $("relPrev").disabled = track.scrollLeft <= 4;
+    $("relNext").disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4;
+  };
+  $("relPrev").onclick = ()=> track.scrollBy({left:-paso,behavior:"smooth"});
+  $("relNext").onclick = ()=> track.scrollBy({left:paso,behavior:"smooth"});
+  track.addEventListener("scroll", estado, {passive:true});
+  estado();
 }
 
 // WhatsApp

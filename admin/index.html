@@ -55,6 +55,8 @@
     <nav class="tabs">
       <button data-view="productos" class="on">Productos</button>
       <button data-view="banners">Banners</button>
+      <button data-view="categorias">Categorías</button>
+      <button data-view="testimonios">Testimonios</button>
       <button data-view="tienda">Tienda</button>
       <button data-view="pedidos">Pedidos</button>
     </nav>
@@ -88,7 +90,64 @@
         <div class="sp"><button class="btn btn-primary btn-sm" id="newBanner">+ Nuevo banner</button></div>
       </div>
       <p class="hint">En el título puedes usar <code style="color:var(--orange)">&lt;em&gt;texto&lt;/em&gt;</code> para destacar en cursiva naranja.</p>
+      <div class="card" style="margin-bottom:16px">
+        <h3 style="font-family:var(--serif);font-size:1.3rem;color:var(--cream2);margin-bottom:4px">Encabezado del bloque de categorías</h3>
+        <p class="hint" style="margin:0 0 16px">Los tres textos que van sobre las tarjetas de categoría en la portada.</p>
+        <div class="grid2">
+          <div class="field"><label>Bajada superior</label><input id="cfgCatsKicker" placeholder="Compra por categoría"></div>
+          <div class="field"><label>Título</label><input id="cfgCatsTitle" placeholder="Del mar, directo a tu cocina"></div>
+        </div>
+        <div class="field"><label>Texto de apoyo</label><input id="cfgCatsSubtitle"></div>
+        <div class="card-foot">
+          <button class="btn btn-primary btn-sm" id="saveCatsHead">Guardar encabezado</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <h3 style="font-family:var(--serif);font-size:1.3rem;color:var(--cream2);margin-bottom:4px">Encabezado del bloque de productos</h3>
+        <p class="hint" style="margin:0 0 16px">Los tres textos que van sobre la grilla del catálogo.</p>
+        <div class="grid2">
+          <div class="field"><label>Bajada superior</label><input id="cfgProdsKicker" placeholder="Selección de la casa"></div>
+          <div class="field"><label>Título</label><input id="cfgProdsTitle" placeholder="Nuestros productos"></div>
+        </div>
+        <div class="field"><label>Texto de apoyo</label><input id="cfgProdsSubtitle"></div>
+        <div class="card-foot">
+          <button class="btn btn-primary btn-sm" id="saveProdsHead">Guardar encabezado</button>
+        </div>
+      </div>
       <div class="cards" id="bannerList"><div class="loading">Cargando…</div></div>
+    </section>
+
+    <!-- CATEGORÍAS -->
+    <section class="view" id="v-categorias">
+      <div class="view-head">
+        <h2>Categorías</h2>
+        <div class="sp">
+          <button class="btn btn-ghost btn-sm" id="reloadCats">Recargar</button>
+          <button class="btn btn-primary btn-sm" id="newCat">+ Nueva categoría</button>
+        </div>
+      </div>
+      <p class="hint">Son las tarjetas del bloque “Compra por categoría” de la portada. Recuerda encender ese bloque en la pestaña Tienda para que se vean.</p>
+      <div class="tablewrap"><table>
+        <thead><tr>
+          <th style="width:70px">Foto</th><th class="c-name">Nombre</th><th class="c-fmt">Bajada</th>
+          <th>Enlace</th><th style="width:70px">Grande</th><th style="width:60px">Orden</th>
+          <th style="width:60px">Activa</th><th style="width:150px"></th>
+        </tr></thead>
+        <tbody id="catBody"><tr><td colspan="8" class="loading">Cargando…</td></tr></tbody>
+      </table></div>
+    </section>
+
+    <!-- TESTIMONIOS -->
+    <section class="view" id="v-testimonios">
+      <div class="view-head">
+        <h2>Testimonios</h2>
+        <div class="sp">
+          <button class="btn btn-ghost btn-sm" id="reloadTestis">Recargar</button>
+          <button class="btn btn-primary btn-sm" id="newTesti">+ Nuevo testimonio</button>
+        </div>
+      </div>
+      <p class="hint">Las opiniones que aparecen en la portada. Mientras alguno esté marcado como “de muestra”, el sitio avisa que no son reseñas reales.</p>
+      <div class="cards" id="testiList"><div class="loading">Cargando…</div></div>
     </section>
 
     <!-- TIENDA -->
@@ -103,6 +162,20 @@
         </div>
         <div class="field"><label>Anuncio superior</label><input id="cfgAnn1"></div>
         <div class="field"><label>Anuncio superior · segundo texto</label><input id="cfgAnn2"></div>
+        <div class="field" style="display:flex;align-items:center;gap:12px;padding-top:6px">
+          <label class="sw" style="margin:0"><input type="checkbox" id="cfgShowCats"><span></span></label>
+          <div>
+            <label style="margin:0">Mostrar el bloque "Compra por categoría" en la portada</label>
+            <div style="font-size:.72rem;color:var(--dim2);margin-top:3px">Las cinco tarjetas de Salmón, Camarones, Pescados, Mariscos y Para picar.</div>
+          </div>
+        </div>
+        <div class="field" style="display:flex;align-items:center;gap:12px;padding-top:6px">
+          <label class="sw" style="margin:0"><input type="checkbox" id="cfgShowStatus"><span></span></label>
+          <div>
+            <label style="margin:0">Mostrar "Estado: Disponible" en la ficha</label>
+            <div style="font-size:.72rem;color:var(--dim2);margin-top:3px">Hoy es un texto fijo, no refleja stock real. Déjalo apagado hasta tener control de existencias.</div>
+          </div>
+        </div>
         <div class="card-foot">
           <button class="btn btn-primary btn-sm" id="saveCfg">Guardar cambios</button>
           <span class="sp" style="font-size:.8rem;color:var(--dim2)" id="cfgState"></span>

@@ -75,7 +75,7 @@ function setProducts(list){
 }
 setProducts(FALLBACK_PRODUCTS.slice());
 let banners  = FALLBACK_BANNERS.slice();
-let WHATSAPP="56997463689", FREE_SHIP=35000, SHIP_COST=3990;
+let WHATSAPP="56965128341", FREE_SHIP=40000, SHIP_COST=3990;
 
 // Escribe el umbral de envío gratis en todos los textos de la página, para que nunca
 // quede desincronizado del valor real que usa el carrito (ni al cambiarlo desde Supabase).
@@ -103,6 +103,17 @@ async function loadFromSupabase(){
     if (cfg){
       WHATSAPP=cfg.whatsapp||WHATSAPP; FREE_SHIP=cfg.free_ship_threshold||FREE_SHIP; SHIP_COST=cfg.ship_cost??SHIP_COST;
       paintConfig(); sync();   // repinta textos y recalcula el carrito con los montos nuevos
+      // el bloque de categorías se publica solo si está encendido en el panel
+      const secCat=document.getElementById("categorias");
+      if(secCat) secCat.hidden = cfg.show_categories !== true;
+      // encabezado del bloque, editable desde el panel
+      const ponTexto=(id,val)=>{ const el=document.getElementById(id); if(el&&val) el.textContent=val; };
+      ponTexto("catsKicker", cfg.cats_kicker);
+      ponTexto("catsTitle", cfg.cats_title);
+      ponTexto("catsSubtitle", cfg.cats_subtitle);
+      ponTexto("prodsKicker", cfg.prods_kicker);
+      ponTexto("prodsTitle", cfg.prods_title);
+      ponTexto("prodsSubtitle", cfg.prods_subtitle);
       const a1=document.getElementById('ann1'), a2=document.getElementById('ann2');
       if(a1&&cfg.announcement) a1.textContent=cfg.announcement;
       if(a2&&cfg.announcement_2) a2.textContent=cfg.announcement_2;
@@ -155,6 +166,70 @@ function renderGrid(){
    </article>`;}).join("");
 }
 renderGrid();
+
+// ================= CATEGORÍAS =================
+// Se guardan en Supabase para poder editarlas desde el panel.
+let categorias=[];
+
+async function cargarCategorias(){
+  const grid=document.getElementById("catsGrid");
+  const sec=document.getElementById("categorias");
+  if(!grid||!sbClient) return;
+  try{
+    const {data}=await sbClient.from("categories").select("*").eq("active",true).order("sort_order");
+    if(data) categorias=data;
+  }catch(e){ console.warn("No se pudieron cargar las categorías:",e.message); }
+  pintarCategorias();
+}
+
+function pintarCategorias(){
+  const grid=document.getElementById("catsGrid");
+  if(!grid) return;
+  grid.innerHTML = categorias.map(c=>{
+    const foto = c.image_url || CAT_IMG[c.name] || IMG_PAQ;
+    return `<a class="cat${c.featured?" big":""}" href="${esc(c.link||"#productos")}">
+      <img src="${esc(foto)}" alt="${esc(c.name)}" loading="lazy">
+      <div class="lbl">
+        ${c.kicker?`<div class="k">${esc(c.kicker)}</div>`:""}
+        <h3 class="serif">${esc(c.name)}</h3>
+        ${c.featured?'<span class="go">Ver todo →</span>':""}
+      </div></a>`;}).join("");
+}
+
+// ================= TESTIMONIOS =================
+let testimonios=[];
+
+async function cargarTestimonios(){
+  const grid=document.getElementById("testisGrid");
+  if(!grid||!sbClient) return;
+  try{
+    const {data}=await sbClient.from("testimonials").select("*").eq("active",true).order("sort_order");
+    if(data) testimonios=data;
+  }catch(e){ console.warn("No se pudieron cargar los testimonios:",e.message); }
+  pintarTestimonios();
+}
+
+// Las iniciales del círculo salen del nombre, no se cargan aparte.
+function iniciales(nombre){
+  return String(nombre||"").trim().split(/\s+/).slice(0,2)
+    .map(p=>p[0]||"").join("").toUpperCase();
+}
+
+function pintarTestimonios(){
+  const grid=document.getElementById("testisGrid");
+  if(!grid) return;
+  grid.innerHTML = testimonios.map(t=>`
+    <div class="testi">
+      <span class="q serif">“</span>
+      <p>${esc(t.quote)}</p>
+      <div class="who">
+        <div class="av">${esc(iniciales(t.author))}</div>
+        <div><b>${esc(t.author)}</b><span>${esc(t.location||"")}</span></div>
+      </div>
+    </div>`).join("");
+  const sec=grid.closest("section");
+  if(sec) sec.hidden = testimonios.length===0;
+}
 
 // ================= HERO (banners) =================
 function renderHero(){
@@ -237,13 +312,14 @@ function renderCart(){
      </div>
      <div class="ci-line">${CLP(p.price*q)}</div>
    </div>`;}).join("");
-  const sub=subtotal(),ship=sub>=FREE_SHIP?0:SHIP_COST,falta=Math.max(0,FREE_SHIP-sub),pct=Math.min(100,sub/FREE_SHIP*100);
+  const sub=subtotal(),ship=costoDespacho(sub),falta=Math.max(0,FREE_SHIP-sub),pct=Math.min(100,sub/FREE_SHIP*100);
   document.getElementById("shipBar").innerHTML=falta>0
     ? `Te faltan <b style="color:var(--orange)">${CLP(falta)}</b> para envío gratis<div class="track"><div class="fill" style="width:${pct}%"></div></div>`
     : `✅ ¡Tienes envío gratis!<div class="track"><div class="fill" style="width:100%"></div></div>`;
   document.getElementById("sumSub").textContent=CLP(sub);
-  document.getElementById("sumShip").textContent=ship===0?"Gratis":CLP(ship);
-  document.getElementById("sumTotal").textContent=CLP(sub+ship);
+  document.getElementById("sumShip").textContent =
+    ship===0 ? "Gratis" : ship===null ? "Elige tu comuna" : CLP(ship);
+  document.getElementById("sumTotal").textContent = CLP(sub + (ship||0));
 }
 grid.addEventListener("click",e=>{const b=e.target.closest("[data-key]");if(b)addItem(b.dataset.key);});
 document.getElementById("cartItems").addEventListener("click",e=>{
@@ -313,8 +389,8 @@ searchInput.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSearch();se
 async function saveOrder(d,keys,sub,ship,total){
   if(!sbClient) return;
   const items=keys.map(k=>{const p=byKey.get(k);return {product_id:p.id||null,name:p.n,qty:cart[k],unit_price:p.price,line_total:p.price*cart[k]};});
-  await sbClient.rpc('place_order',{p_name:`${d.name} ${d.lastName}`.trim(),p_phone:d.phone,p_comuna:"",p_email:d.email,
-    p_subtotal:sub,p_shipping:ship,p_total:total,p_items:items});
+  await sbClient.rpc('place_order',{p_name:`${d.name} ${d.lastName}`.trim(),p_phone:d.phone,p_comuna:d.comuna,p_email:d.email,
+    p_subtotal:sub,p_shipping:ship,p_total:total,p_items:items,p_address:d.address,p_region:d.region});
 }
 
 // Deja el teléfono en formato internacional chileno (56XXXXXXXXX) para que el número
@@ -328,9 +404,53 @@ function normalizaFono(v){
 }
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+// ---------- despacho por comuna ----------
+// Las tarifas viven en Supabase (tabla shipping_rates) para poder ajustarlas
+// sin volver a publicar el sitio. SHIP_COST queda como respaldo.
+let TARIFAS=[];
+
+async function cargarTarifas(){
+  if(!sbClient) return;
+  try{
+    const {data}=await sbClient.from("shipping_rates").select("*").eq("active",true).eq("covered",true)
+      .order("region").order("sort_order");
+    if(data&&data.length){ TARIFAS=data; llenarRegiones(); }
+  }catch(e){ console.warn("No se pudieron cargar las tarifas de despacho:",e.message); }
+}
+
+// Costo de la comuna elegida; sin comuna todavia, no se puede saber.
+function costoComuna(){
+  const c=(document.getElementById("ckComuna")?.value||"").trim();
+  if(!c) return null;
+  const t=TARIFAS.find(t=>t.comuna===c);
+  return t ? t.cost : SHIP_COST;
+}
+
+// El envio es gratis sobre el umbral, sin importar la comuna.
+function costoDespacho(sub){
+  if(sub>=FREE_SHIP) return 0;
+  return costoComuna();
+}
+
+function llenarRegiones(){
+  const selCom=document.getElementById("ckComuna");
+  if(!selCom) return;
+  document.getElementById("ckRegion").addEventListener("change",e=>{
+    const reg=e.target.value;
+    const comunas=TARIFAS.filter(t=>t.region===reg);
+    selCom.innerHTML='<option value="">Comuna…</option>'+
+      comunas.map(t=>'<option value="'+esc(t.comuna)+'">'+esc(t.comuna)+' · '+CLP(t.cost)+'</option>').join("");
+    selCom.disabled=!reg;
+    selCom.value="";
+    renderCart();   // el despacho cambia al cambiar de region
+  });
+  selCom.addEventListener("change",renderCart);
+}
+
 // Valida los datos del cliente y marca el primer campo con problema.
 function leerDatosCliente(){
-  const campos={name:"ckName",lastName:"ckLastName",phone:"ckPhone",email:"ckEmail"};
+  const campos={name:"ckName",lastName:"ckLastName",phone:"ckPhone",email:"ckEmail",
+                region:"ckRegion",comuna:"ckComuna",address:"ckAddress"};
   const el=id=>document.getElementById(id);
   Object.values(campos).forEach(id=>el(id).classList.remove("err"));
   const v={}; for(const [k,id] of Object.entries(campos)) v[k]=(el(id).value||"").trim();
@@ -341,7 +461,10 @@ function leerDatosCliente(){
   const fono=normalizaFono(v.phone);
   if(!fono)                   return falla(campos.phone,"Revisa tu teléfono: 9 dígitos, ej. 9 1234 5678");
   if(!EMAIL_RE.test(v.email)) return falla(campos.email,"Revisa tu correo electrónico");
-  return {...v, phone:fono};
+  if(!v.region)               return falla(campos.region,"Elige tu region");
+  if(!v.comuna)               return falla(campos.comuna,"Elige tu comuna");
+  if(v.address.length<5)      return falla(campos.address,"Falta tu direccion de despacho");
+  return {...v, phone:fono, regionLabel: v.region==="RM" ? "Region Metropolitana" : "V Region"};
 }
 
 const checkoutBtn=document.getElementById("checkoutBtn");
@@ -352,7 +475,7 @@ checkoutBtn.addEventListener("click",async ()=>{
   if(!keys.length){toastMsg("Tu carrito está vacío");return;}
   const datos=leerDatosCliente();
   if(!datos) return;                        // faltan datos: no se abre WhatsApp ni se guarda
-  const sub=subtotal(),ship=sub>=FREE_SHIP?0:SHIP_COST,total=sub+ship;
+  const sub=subtotal(),ship=costoDespacho(sub)||0,total=sub+ship;
 
   // La ventana se abre dentro del gesto del usuario: si se abriera después del await,
   // el navegador la bloquearía como popup y el pedido quedaría guardado sin avisar a nadie.
@@ -371,7 +494,11 @@ checkoutBtn.addEventListener("click",async ()=>{
   keys.forEach(k=>{const p=byKey.get(k),q=cart[k];msg+=`• ${q}× ${p.n} — ${CLP(p.price*q)}\n`;});
   msg+=`\nSubtotal: ${CLP(sub)}\nDespacho: ${ship===0?"Gratis":CLP(ship)}\nTotal: ${CLP(total)}\n\n`
      +`Nombre: ${datos.name} ${datos.lastName}\nTeléfono: ${datos.phone}\nCorreo: ${datos.email}\n\n`
-     +`Dirección de despacho: \nHorario preferido: `;
+     +`Dirección: ${datos.address}
+Comuna: ${datos.comuna}
+Región: ${datos.regionLabel}
+
+\nHorario preferido: `;
   const url=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
   if(win&&!win.closed) win.location.href=url; else location.href=url;   // fallback si bloquean el popup
 });
@@ -385,6 +512,9 @@ function openWhatsApp(text){
 document.querySelectorAll(".wa-link").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();openWhatsApp(GREET);}));
 document.querySelectorAll(".wa-ask").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();openWhatsApp(a.dataset.ask||GREET);}));
 paintConfig();
+cargarTarifas();
+cargarCategorias();
+cargarTestimonios();
 sync();
 
 // ================= NEWSLETTER =================

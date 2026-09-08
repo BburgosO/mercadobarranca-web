@@ -1,0 +1,75 @@
+/* ===================================================================
+   Páginas internas: Despachos y Venta a empresas
+   Comparten la base visual del sitio (styles.css se carga antes).
+   =================================================================== */
+
+.pagina{padding:34px 0 80px}
+.pagina .intro{max-width:660px;margin-bottom:44px}
+.pagina .intro h1{font-family:var(--serif);font-size:clamp(2.2rem,4.4vw,3.2rem);color:var(--cream2);line-height:1.08;margin-top:14px}
+.pagina .intro p{color:var(--dim);margin-top:14px;font-size:1.05rem}
+
+/* ---------- zona: mapa + listado ---------- */
+.zona{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:28px;margin-bottom:26px;
+  box-shadow:0 2px 12px rgba(15,45,70,.05)}
+.zona-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.zona-head h2{font-family:var(--serif);font-size:1.9rem;color:var(--cream2)}
+.zona-head .dato{font-size:.82rem;color:var(--dim2)}
+.zona-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+@media(max-width:900px){.zona-grid{grid-template-columns:1fr;gap:24px}}
+
+/* ---------- mapa ---------- */
+.mapa{width:100%;background:#f4fafd;border:1px solid var(--line);border-radius:6px;padding:10px}
+.mapa svg{width:100%;height:auto;display:block}
+.mapa path{
+  fill:#dfe8ee;                 /* sin cobertura */
+  stroke:#ffffff;stroke-width:.8;
+  transition:fill .15s;
+}
+.mapa path.cubierta{fill:var(--orange);cursor:pointer}
+.mapa path.cubierta:hover{fill:var(--terra)}
+.mapa path.activa{fill:var(--terra)}
+
+.leyenda{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:.78rem;color:var(--dim)}
+.leyenda span{display:inline-flex;align-items:center;gap:7px}
+.leyenda i{width:13px;height:13px;border-radius:3px;display:inline-block}
+.leyenda .c-si{background:var(--orange)}
+.leyenda .c-no{background:#dfe8ee;border:1px solid var(--line2)}
+
+/* ---------- listado de precios ---------- */
+.tarifas{display:grid;gap:2px}
+.tarifas .fila{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 13px;border-radius:5px;transition:background .15s}
+.tarifas .fila:nth-child(odd){background:rgba(15,45,70,.025)}
+.tarifas .fila.on{background:rgba(225,145,64,.14)}
+.tarifas .fila .comuna{color:var(--cream2);font-weight:500}
+.tarifas .fila .valor{font-family:var(--serif);font-size:1.15rem;font-weight:600;color:var(--orange);white-space:nowrap}
+.tarifas h3{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim2);
+  margin:18px 0 6px;font-weight:600}
+.tarifas h3:first-child{margin-top:0}
+
+.aviso-envio{margin-top:26px;background:var(--navy3);border:1px solid var(--line);border-radius:6px;
+  padding:16px 18px;font-size:.9rem;color:var(--cream)}
+.aviso-envio b{color:var(--cream2)}
+
+/* ---------- formulario de empresas ---------- */
+.form-empresa{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:30px;
+  box-shadow:0 2px 12px rgba(15,45,70,.05);max-width:720px}
+.form-empresa .par{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.form-empresa .par{grid-template-columns:1fr}}
+.form-empresa .campo{margin-bottom:14px}
+.form-empresa label{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim2);margin-bottom:6px}
+.form-empresa input,.form-empresa select,.form-empresa textarea{
+  width:100%;background:#f5fafd;border:1px solid var(--line2);border-radius:5px;padding:12px 14px;
+  color:var(--cream2);font-family:inherit;font-size:.95rem;outline:none}
+.form-empresa input:focus,.form-empresa select:focus,.form-empresa textarea:focus{border-color:var(--orange)}
+.form-empresa input.err,.form-empresa select.err,.form-empresa textarea.err{border-color:var(--terra)}
+.form-empresa textarea{min-height:110px;resize:vertical;line-height:1.6}
+.form-empresa .btn{width:100%;margin-top:8px;justify-content:center}
+.form-nota{font-size:.8rem;color:var(--dim2);text-align:center;margin-top:12px}
+.form-ok{display:none;text-align:center;padding:40px 20px}
+.form-ok.on{display:block}
+.form-ok .tic{width:56px;height:56px;border-radius:50%;background:rgba(79,157,105,.16);color:var(--green);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.form-ok h3{font-family:var(--serif);font-size:1.7rem;color:var(--cream2);margin-bottom:8px}
+.form-ok p{color:var(--dim)}
