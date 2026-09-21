@@ -176,7 +176,6 @@ function pintar(){
 
         <div class="ship-note">
           <div><span class="ic">🚚</span><span>Envío gratis en compras sobre <b>${CLP(FREE_SHIP)}</b>.${falta>0?` Te faltan <b>${CLP(falta)}</b> con este producto.`:""}</span></div>
-          <div><span class="ic">❄️</span><span>Cadena de frío desde la bodega hasta tu puerta, solo en la Región Metropolitana.</span></div>
           <div><span class="ic">💬</span><span>El pedido se coordina y se paga por WhatsApp.</span></div>
         </div>
 
