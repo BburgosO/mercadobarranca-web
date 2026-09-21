@@ -662,6 +662,7 @@ async function cargarConfig(){
   $("cfgAnn1").value=data.announcement; $("cfgAnn2").value=data.announcement_2;
   $("cfgShowStatus").checked = data.show_status === true;
   $("cfgShowCats").checked = data.show_categories === true;
+  $("cfgShowCatalogBtn").checked = data.show_catalog_btn === true;
   $("cfgState").textContent="Actualizado el "+fecha(data.updated_at);
 }
 
@@ -677,6 +678,7 @@ $("saveCfg").addEventListener("click", async ()=>{
     announcement_2: $("cfgAnn2").value.trim(),
     show_status: $("cfgShowStatus").checked,
     show_categories: $("cfgShowCats").checked,
+    show_catalog_btn: $("cfgShowCatalogBtn").checked,
     updated_at: new Date().toISOString()
   }).eq("id",1);
   btn.disabled=false; btn.textContent="Guardar cambios";

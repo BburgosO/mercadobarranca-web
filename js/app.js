@@ -114,6 +114,8 @@ async function loadFromSupabase(){
       ponTexto("prodsKicker", cfg.prods_kicker);
       ponTexto("prodsTitle", cfg.prods_title);
       ponTexto("prodsSubtitle", cfg.prods_subtitle);
+      const btnCat=document.getElementById("prodFoot");
+      if(btnCat) btnCat.hidden = cfg.show_catalog_btn !== true;
       const a1=document.getElementById('ann1'), a2=document.getElementById('ann2');
       if(a1&&cfg.announcement) a1.textContent=cfg.announcement;
       if(a2&&cfg.announcement_2) a2.textContent=cfg.announcement_2;
