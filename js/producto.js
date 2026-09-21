@@ -284,9 +284,8 @@ function abrirWhatsApp(txt){
   const url=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(txt)}`;
   const w=window.open(url,"_blank","noopener"); if(!w) location.href=url;
 }
-$("waBtn").addEventListener("click",e=>{e.preventDefault();abrirWhatsApp(GREET);});
 document.addEventListener("click",e=>{
-  const a=e.target.closest(".wa-ask"); if(!a) return;
+  const a=e.target.closest(".wa-link,.wa-ask"); if(!a) return;
   e.preventDefault(); abrirWhatsApp(a.dataset.ask||GREET);
 });
 
